@@ -18,10 +18,12 @@ type NodeInfo struct {
 	RemoteAddr string        `json:"remote_addr"` // address for the connection
 	ListenAddr string        `json:"listen_addr"` // accepting incoming
 	Version    string        `json:"version"`     // major.minor.revision
+	Channels   []byte        `json:"channels"`    // channels this node knows about
 	Other      []string      `json:"other"`       // other application specific data
 }
 
-// CONTRACT: two nodes are compatible if the major/minor versions match and network match
+// CONTRACT: two nodes are compatible if the major/minor versions match, the network matches,
+// and they have at least one channel in common.
 func (info *NodeInfo) CompatibleWith(other *NodeInfo) error {
 	iMajor, iMinor, _, iErr := splitVersion(info.Version)
 	oMajor, oMinor, _, oErr := splitVersion(other.Version)
@@ -49,6 +51,24 @@ func (info *NodeInfo) CompatibleWith(other *NodeInfo) error {
 	// nodes must be on the same network
 	if info.Network != other.Network {
 		return fmt.Errorf("Peer is on a different network. Got %v, expected %v", other.Network, info.Network)
+	}
+
+	// if we have no channels, we're just testing
+	if len(info.Channels) == 0 {
+		return nil
+	}
+
+	// for each of our channels, check if they have it
+	found := false
+	for _, ch1 := range info.Channels {
+		for _, ch2 := range other.Channels {
+			if ch1 == ch2 {
+				found = true
+			}
+		}
+	}
+	if !found {
+		return fmt.Errorf("Peer has no common channels. Our channels: %v ; Peer channels: %v", info.Channels, other.Channels)
 	}
 
 	return nil

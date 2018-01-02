@@ -259,6 +259,8 @@ func (p *peer) Send(chID byte, msg interface{}) bool {
 		// see Switch#Broadcast, where we fetch the list of peers and loop over
 		// them - while we're looping, one peer may be removed and stopped.
 		return false
+	} else if !p.HasChannel(chID) {
+		return false
 	}
 	return p.mconn.Send(chID, msg)
 }
@@ -268,8 +270,15 @@ func (p *peer) Send(chID byte, msg interface{}) bool {
 func (p *peer) TrySend(chID byte, msg interface{}) bool {
 	if !p.IsRunning() {
 		return false
+	} else if !p.HasChannel(chID) {
+		return false
 	}
 	return p.mconn.TrySend(chID, msg)
+}
+
+func (p *peer) HasChannel(chID byte) bool {
+	_, ok := p.mconn.channelsIdx[chID]
+	return ok
 }
 
 // CanSend returns true if the send queue is not full, false otherwise.
