@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tendermint/tendermint/types"
 	cmn "github.com/tendermint/tmlibs/common"
 	"github.com/tendermint/tmlibs/log"
+
+	"github.com/tendermint/tendermint/types"
 )
 
 func init() {

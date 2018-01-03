@@ -5,14 +5,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tendermint/tendermint/types"
 	cmn "github.com/tendermint/tmlibs/common"
 	flow "github.com/tendermint/tmlibs/flowrate"
 	"github.com/tendermint/tmlibs/log"
+
+	"github.com/tendermint/tendermint/types"
 )
 
 /*
-
 eg, L = latency = 0.1s
 	P = num peers = 10
 	FN = num full nodes
@@ -22,7 +22,6 @@ eg, L = latency = 0.1s
 	B/S = CB/P/BS = 12.8 blocks/s
 
 	12.8 * 0.1 = 1.28 blocks on conn
-
 */
 
 const (
@@ -63,7 +62,9 @@ type BlockPool struct {
 	timeoutsCh chan<- string
 }
 
-func NewBlockPool(start int64, requestsCh chan<- BlockRequest, timeoutsCh chan<- string) *BlockPool {
+func NewBlockPool(start int64, requestsCh chan<- BlockRequest,
+	timeoutsCh chan<- string) *BlockPool {
+
 	bp := &BlockPool{
 		peers: make(map[string]*bpPeer),
 
@@ -502,7 +503,7 @@ func (bpr *bpRequester) requestRoutine() {
 OUTER_LOOP:
 	for {
 		// Pick a peer to send request to.
-		var peer *bpPeer = nil
+		var peer *bpPeer
 	PICK_PEER_LOOP:
 		for {
 			if !bpr.IsRunning() || !bpr.pool.IsRunning() {
