@@ -53,8 +53,8 @@ type BlockchainReactor struct {
 	store      *BlockStore
 	pool       *BlockPool
 	fastSync   bool
-	requestsCh chan BlockRequest
-	timeoutsCh chan string
+	requestsCh <-chan BlockRequest
+	timeoutsCh <-chan string
 }
 
 // NewBlockchainReactor returns new reactor instance.
@@ -127,7 +127,8 @@ func (bcR *BlockchainReactor) GetChannels() []*p2p.ChannelDescriptor {
 
 // AddPeer implements Reactor by sending our state to peer.
 func (bcR *BlockchainReactor) AddPeer(peer p2p.Peer) {
-	if !peer.Send(BlockchainChannel, struct{ BlockchainMessage }{&bcStatusResponseMessage{bcR.store.Height()}}) {
+	if !peer.Send(BlockchainChannel,
+		struct{ BlockchainMessage }{&bcStatusResponseMessage{bcR.store.Height()}}) {
 		// doing nothing, will try later in `poolRoutine`
 	}
 	// peer is added to the pool once we receive the first
