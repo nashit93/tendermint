@@ -2,13 +2,21 @@
 
 This is a markdown specification of the Tendermint blockchain.
 
-It defines the base data structures used in the blockchain and how they are validated.
+It defines the base data structures and the validation rules (reactors) used in a Tendermint
+blockchain.
 
 It contains the following components:
+
+Data Structures
 
 - [Encoding and Digests](encoding.md)
 - [Blockchain](blockchain.md)
 - [State](state.md)
+
+Reactors
+
+- [Consensus](consensus.md)
+- [Blockchain](blockchain_reactor.md)
 
 ## Overview
 
