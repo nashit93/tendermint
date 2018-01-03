@@ -364,13 +364,15 @@ func (sw *Switch) dialSeed(addr *NetAddress) {
 }
 
 // DialPeerWithAddress dials the given peer and runs sw.addPeer if it connects successfully.
-// If `persistent == true`, the switch will always try to reconnect to this peer if the connection ever fails.
+// If `persistent == true`, the switch will always try to reconnect to this peer if the connection
+// ever fails.
 func (sw *Switch) DialPeerWithAddress(addr *NetAddress, persistent bool) (Peer, error) {
 	sw.dialing.Set(addr.IP.String(), addr)
 	defer sw.dialing.Delete(addr.IP.String())
 
 	sw.Logger.Info("Dialing peer", "address", addr)
-	peer, err := newOutboundPeer(addr, sw.reactorsByCh, sw.chDescs, sw.StopPeerForError, sw.nodePrivKey, sw.peerConfig)
+	peer, err := newOutboundPeer(addr, sw.reactorsByCh, sw.chDescs, sw.StopPeerForError,
+		sw.nodePrivKey, sw.peerConfig)
 	if err != nil {
 		sw.Logger.Error("Failed to dial peer", "address", addr, "err", err)
 		return nil, err
@@ -390,6 +392,7 @@ func (sw *Switch) DialPeerWithAddress(addr *NetAddress, persistent bool) (Peer, 
 }
 
 // IsDialing returns true if the switch is currently dialing the given address.
+// NOTE: Not goroutine safe.
 func (sw *Switch) IsDialing(addr *NetAddress) bool {
 	return sw.dialing.Has(addr.IP.String())
 }
@@ -615,7 +618,8 @@ func makeSwitch(cfg *cfg.P2PConfig, i int, network, version string, initSwitch f
 }
 
 func (sw *Switch) addPeerWithConnection(conn net.Conn) error {
-	peer, err := newInboundPeer(conn, sw.reactorsByCh, sw.chDescs, sw.StopPeerForError, sw.nodePrivKey, sw.peerConfig)
+	peer, err := newInboundPeer(conn, sw.reactorsByCh, sw.chDescs, sw.StopPeerForError,
+		sw.nodePrivKey, sw.peerConfig)
 	if err != nil {
 		if err := conn.Close(); err != nil {
 			sw.Logger.Error("Error closing connection", "err", err)
